@@ -6,6 +6,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="ViTrox Ops">
+<link rel="manifest" href="ops.webmanifest">
+<link rel="icon" type="image/png" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <title>ViTrox Ops</title>
 <style>
   body { margin: 0; background: #0a0e17; color: #8a9ab3; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; display: flex; align-items: center; justify-content: center; min-height: 100vh; text-align: center; padding: 20px; box-sizing: border-box; font-size: 15px; }
@@ -17,6 +20,9 @@
     // ViTrox Ops web app. This file holds no data and no PIN: the app loads from the ISSUE SHEET script
     // and shows nothing until the Ops PIN is entered (checked by the script).
     var API = "https://script.google.com/macros/s/AKfycbwQ3NeZjULgIl8CG4h3KwGQkd1rrd2GqD_Y8oNFKUp1KLyQGXy0GD0Rl3JkHZxdgaxVFA/exec";
+    // installable app (desktop / phone icon): the manifest + icons sit next to this file on GitHub
+    var APP_HEAD = '<link rel="manifest" href="ops.webmanifest"><link rel="icon" type="image/png" href="icon-192.png"><link rel="apple-touch-icon" href="apple-touch-icon.png">';
+    if ("serviceWorker" in navigator) { try { navigator.serviceWorker.register("ops-sw.js", { scope: "./ops.html" }).catch(function() {}); } catch (e) {} }
     function show(msg, retry) {
       document.getElementById("m").textContent = msg;
       var r = document.getElementById("r"); r.innerHTML = "";
@@ -30,7 +36,7 @@
           var j = null; try { j = JSON.parse(t); } catch (e) {}
           if (j && j.error_ === "Unknown request.") { show("The script link still runs the old version. Apps Script → Deploy → Manage deployments → ✏️ Edit → Version: New version → Deploy, then try again.", true); return; }
           if (!j || !j.html) { show((j && j.error_) || "The app did not answer. If you just updated the script, redeploy it (New version).", true); return; }
-          document.open(); document.write(j.html); document.close();
+          document.open(); document.write(j.html.replace(/<head>/i, "<head>" + APP_HEAD)); document.close();
         })
         .catch(function() { show("No connection to the ISSUE SHEET script.", true); });
     }
